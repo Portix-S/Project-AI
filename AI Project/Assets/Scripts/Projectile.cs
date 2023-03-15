@@ -6,6 +6,7 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] float projectileSpeed;
     [SerializeField] Rigidbody2D projectileRb;
+    [SerializeField] int projectileDamage;
     Vector3 distance;
     Vector3 playerPos;
     bool hitPlayer;
@@ -31,10 +32,12 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.tag == "Player" && collision.isTrigger)
         {
             Destroy(gameObject, 0.1f);
             hitPlayer = true;
+            CharacterController2D playerScript = collision.GetComponent<CharacterController2D>();
+            playerScript.TakeDamage(projectileDamage);
         }
     }
 

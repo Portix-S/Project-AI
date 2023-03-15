@@ -7,7 +7,7 @@ public class LaserBehaviour : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        int numberOfLasers = Random.Range(0, 5);
+        int numberOfLasers = Random.Range(0, 3);
         BossManager bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
         List<int> randomList = new List<int>();
         if(bossScript.isFacingLeft)
@@ -27,8 +27,7 @@ public class LaserBehaviour : StateMachineBehaviour
             randomList.Add(randPos);
 
             //Instantiate in Random Position
-            //Instantiate(bossScript.laser, bossScript.laserList[randPos].transform.position, Quaternion.Euler(0,0,0));
-            //Instantiate(bossScript.laser, projectileSpawnPos.transform.position, Quaternion.Euler(0, 0, 0));
+            Instantiate(bossScript.laser, bossScript.laserList[randPos].transform.position, Quaternion.Euler(0,0,180));
 
             //bossScript.laserList[randPos];   
         }

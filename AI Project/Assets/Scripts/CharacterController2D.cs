@@ -19,6 +19,10 @@ public class CharacterController2D : MonoBehaviour
 	private bool m_FacingRight = true;  // For determining which way the player is currently facing.
 	private Vector3 m_Velocity = Vector3.zero;
 
+	[Header("Health")]
+	public int health = 100;
+
+
 	[Header("Events")]
 	[Space]
 
@@ -58,6 +62,9 @@ public class CharacterController2D : MonoBehaviour
 					OnLandEvent.Invoke();
 			}
 		}
+		if(health == 0)
+			Move(0, false, false);
+
 	}
 
 
@@ -142,5 +149,16 @@ public class CharacterController2D : MonoBehaviour
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+	}
+
+
+	public void TakeDamage(int damage) // Boss toma dano, caso não esteja imune
+	{
+		if (health > damage)
+			health -= damage; // take in consideration armor? On Rage could have more?
+		else if (health <= damage)
+		{
+			health = 0;
+		}
 	}
 }

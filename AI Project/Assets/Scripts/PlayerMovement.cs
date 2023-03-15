@@ -17,6 +17,8 @@ public class PlayerMovement : MonoBehaviour {
 	Animator animator;
 	Rigidbody2D rb;
 
+	//Retirar Depois
+	BossManager bossScript;
 
 	private void Start()
     {
@@ -25,49 +27,62 @@ public class PlayerMovement : MonoBehaviour {
 		objectHeight = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.y / 2 - 0.55f;
 		animator = GetComponentInChildren<Animator>();
 		rb = GetComponent<Rigidbody2D>();
+		bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
 	}
 
     // Update is called once per frame
-    void Update () {
-		if (Input.GetButtonDown("Jump"))
+    void Update () 
+	{
+		if (controller.health > 0)
 		{
-			jump = true;
-			animator.SetBool("isJumping", true);
+			if (Input.GetButtonDown("Jump"))
+			{
+				animator.SetBool("isGrounded", false);
+				jump = true;
+				animator.SetBool("isJumping", true);
+			}
+
+
+			horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+
+			if (Input.GetButtonDown("Crouch"))
+			{
+				animator.SetBool("isCrouching", true);
+				crouch = true;
+			}
+			else if (Input.GetButtonUp("Crouch"))
+			{
+				crouch = false;
+				animator.SetBool("isCrouching", false);
+			}
+
+			if (Input.GetKeyDown(KeyCode.P))
+			{
+				bossScript.TakeDamage(10);
+			}
 		}
+		else
+			horizontalMove = 0;
 
-
-		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 		if (horizontalMove != 0)
 			animator.SetBool("isRunning", true);
 		else
 			animator.SetBool("isRunning", false);
-		
-		if(rb.velocity.y < -Mathf.Epsilon && !controller.m_Grounded)
-        {
-			Debug.Log("test");
+
+		if (rb.velocity.y < -Mathf.Epsilon && !controller.m_Grounded)
+		{
 			animator.SetBool("isJumping", false);
 			animator.SetBool("isFalling", true);
-        }
+		}
+
 		if (controller.m_Grounded)
 		{
 			animator.SetBool("isFalling", false);
 			animator.SetBool("isGrounded", true);
 		}
 		else
-        {
+		{
 			animator.SetBool("isGrounded", false);
-		}
-
-		
-		if (Input.GetButtonDown("Crouch"))
-		{
-			animator.SetBool("isCrouching", true);
-			crouch = true;
-		} 
-		else if (Input.GetButtonUp("Crouch"))
-		{
-			crouch = false;
-			animator.SetBool("isCrouching", false);
 		}
 
 	}
@@ -75,8 +90,11 @@ public class PlayerMovement : MonoBehaviour {
 	void FixedUpdate ()
 	{
 		// Move our character
-		controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
-		jump = false;
+		if (controller.health > 0)
+		{
+			controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
+			jump = false;
+		}
 	}
 
 	private void LateUpdate()

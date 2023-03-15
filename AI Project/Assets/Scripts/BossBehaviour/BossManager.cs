@@ -157,6 +157,11 @@ public class BossManager : MonoBehaviour
         animator.SetBool("isLasering", false);
     }
 
+    public void StopMelee()
+    {
+        animator.SetBool("isMeleeing", false);
+    }
+
     private void Die()  // Boss morre, mostra tela de vitória
     {
         animator.SetBool("isDead", true);
@@ -174,10 +179,10 @@ public class BossManager : MonoBehaviour
 
         if (health == 0)
             Die();
-        else if (playerPos < 2 && Random.Range(0, 100) <= meleeChance) //playerPos n esta implementado
+        else if (playerPos < 5f && Random.Range(0, 100) <= meleeChance) //playerPos n esta implementado
         {
             Debug.Log("Melee");
-            //animator.SetBool("isAttacking", true);
+            animator.SetBool("isMeleeing", true);
         }
         else if (rand <= chanceList[0])
         {
@@ -206,32 +211,34 @@ public class BossManager : MonoBehaviour
 
     public void ThrowPlayer() // Caso o boss acerte o player, joga o player pra longe
     {
-        Rigidbody playerRb = player.GetComponent<Rigidbody>();
+        Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
         if (isFacingLeft)
         {
             //throw player left
-            playerRb.AddForce(-player.transform.right * throwForce, ForceMode.Impulse);
+            playerRb.AddForce(-player.transform.right * throwForce, ForceMode2D.Impulse);
         }
         else
         {
             //throw player right
-            playerRb.AddForce(player.transform.right * throwForce, ForceMode.Impulse);
+            playerRb.AddForce(player.transform.right * throwForce, ForceMode2D.Impulse);
         }
 
     }
 
     public void TakeDamage(int damage) // Boss toma dano, caso não esteja imune
     {
-        if (temVida && !immune)
+        if (!immune && health > damage)
             health -= damage; // take in consideration armor? On Rage could have more?
-        else if (!immune)
+        else if (!immune && health <= damage)
+        {
             health = 0;
+        }
 
-        if (health <= rageHealth)
+        if (health <= rageHealth) //Enter rage mode(); -> Just Make IdleState Different and Faster animations?
         {
 
         }
-		    //Enter rage mode(); -> Just Make IdleState Different and Faster animations?
+		    
     }
     public void CheckMeleeMiss() // Se o melee não acerte ninguém, diminui a chance de usar a skill
     {
@@ -243,4 +250,14 @@ public class BossManager : MonoBehaviour
 
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.tag == "Player")
+        {
+            if(animator.GetBool("isMeleeing") || animator.GetBool("isDashing"))
+            {
+                ThrowPlayer();
+            }
+        }
+    }
 }
