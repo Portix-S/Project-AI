@@ -6,10 +6,10 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] float projectileSpeed;
     [SerializeField] Rigidbody2D projectileRb;
-    float timer = 5f;
     Vector3 distance;
     Vector3 playerPos;
-
+    bool hitPlayer;
+    BossManager bossScript;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,8 +18,8 @@ public class Projectile : MonoBehaviour
         transform.rotation = LookAtTarget(playerPos - transform.position);
         distance = playerPos - transform.position;
         projectileRb.velocity = new Vector2(distance.x, distance.y).normalized * projectileSpeed;
-        Invoke("DestroyObject", timer);
-
+        Destroy(gameObject, 5f);
+        bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
     }
 
 
@@ -32,12 +32,18 @@ public class Projectile : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player")
-            Invoke("DestroyObject", 0.1f);
+        {
+            Destroy(gameObject, 0.1f);
+            hitPlayer = true;
+        }
     }
 
-    void DestroyObject()
+    private void OnDestroy()
     {
-        Destroy(gameObject);
+        if (!hitPlayer)
+            bossScript.ChangeChance(0, false);
+        else
+            bossScript.ChangeChance(0, true);
     }
 
 }

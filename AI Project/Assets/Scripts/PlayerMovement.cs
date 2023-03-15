@@ -11,23 +11,63 @@ public class PlayerMovement : MonoBehaviour {
 	float horizontalMove = 0f;
 	bool jump = false;
 	bool crouch = false;
-	
-	// Update is called once per frame
-	void Update () {
+	Vector2 limits;
+	float objectWidth;
+	float objectHeight;
+	Animator animator;
+	Rigidbody2D rb;
 
-		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
 
+	private void Start()
+    {
+		 limits = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
+		objectWidth = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.x / 2 - 0.55f;
+		objectHeight = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.y / 2 - 0.55f;
+		animator = GetComponentInChildren<Animator>();
+		rb = GetComponent<Rigidbody2D>();
+	}
+
+    // Update is called once per frame
+    void Update () {
 		if (Input.GetButtonDown("Jump"))
 		{
 			jump = true;
+			animator.SetBool("isJumping", true);
 		}
 
+
+		horizontalMove = Input.GetAxisRaw("Horizontal") * runSpeed;
+		if (horizontalMove != 0)
+			animator.SetBool("isRunning", true);
+		else
+			animator.SetBool("isRunning", false);
+		
+		if(rb.velocity.y < -Mathf.Epsilon && !controller.m_Grounded)
+        {
+			Debug.Log("test");
+			animator.SetBool("isJumping", false);
+			animator.SetBool("isFalling", true);
+        }
+		if (controller.m_Grounded)
+		{
+			animator.SetBool("isFalling", false);
+			animator.SetBool("isGrounded", true);
+		}
+		else
+        {
+			animator.SetBool("isGrounded", false);
+		}
+
+		
 		if (Input.GetButtonDown("Crouch"))
 		{
+			animator.SetBool("isCrouching", true);
 			crouch = true;
-		} else if (Input.GetButtonUp("Crouch"))
+		} 
+		else if (Input.GetButtonUp("Crouch"))
 		{
 			crouch = false;
+			animator.SetBool("isCrouching", false);
 		}
 
 	}
@@ -37,5 +77,14 @@ public class PlayerMovement : MonoBehaviour {
 		// Move our character
 		controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
 		jump = false;
+	}
+
+	private void LateUpdate()
+	{
+		// Mantém o personagem nos limites da telas 
+		Vector3 objPos = transform.position;
+		objPos.x = Mathf.Clamp(objPos.x, -limits.x + objectWidth, limits.x - objectWidth );
+		objPos.y = Mathf.Clamp(objPos.y, -limits.y + objectHeight , limits.y - objectHeight);
+		transform.position = objPos;
 	}
 }

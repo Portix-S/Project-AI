@@ -4,21 +4,40 @@ using UnityEngine;
 
 public class BossManager : MonoBehaviour
 {
-    [SerializeField] bool isFacingLeft;
+    [Header("Serializables")]
+    public bool isFacingLeft;
     [SerializeField] GameObject projectile;
+    public GameObject laser;
+    public GameObject laserPos;
     [SerializeField] int numberOfProjectiles; // 1-4
-    Transform bossTransform;
     [SerializeField] GameObject projectileSpawnPos;
     [SerializeField] GameObject player;
     [SerializeField] GameObject dashCollider;
-    Vector3 initialPos;
-    Vector3 DashPosition;
-    float playerPos;
+    
     Animator animator;
     bool temVida;
-    bool immune;
-    int health;
+    public bool immune;
+    int health = 100;
     int rageHealth;
+    Transform bossTransform;
+    Rigidbody2D bossRb;
+
+    [Header("Skills Config")]
+    public GameObject[] laserList;
+    [SerializeField] float throwForce;
+    [SerializeField] float dashVelocity;
+    Vector3 initialPos;
+    Vector3 dashPos;
+    float playerPos = 50;
+
+    float deltaDash;
+    float deltaImmune;
+    float deltaLaser;
+
+
+    [Header("Probability")]
+    public float meleeChance = 50f;
+    public float[] chanceList;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +45,14 @@ public class BossManager : MonoBehaviour
         isFacingLeft = true;
         bossTransform = gameObject.GetComponent<Transform>();
         animator = GetComponent<Animator>();
+        bossRb = GetComponent<Rigidbody2D>();
+
+        chanceList[0] = 40f; // Ranged Chance in %
+        chanceList[1] = 20f; // Laser Chance 
+        chanceList[2] = 20f; // Immune Chance
+        chanceList[3] = 20f; // Dash Chance
+        initialPos = new Vector3(transform.position.x, transform.position.y, 0f);
+        dashPos = new Vector3(-transform.position.x, transform.position.y, 0f);
     }
 
     // Update is called once per frame
@@ -33,10 +60,51 @@ public class BossManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.L))
             LaunchProjectileAtPlayer();
-        CheckIfNeedToFlip();
+        //CheckIfNeedToFlip();
+
+        if (animator.GetBool("isDashing")) // Talvez Invoke
+        {
+            Dash();
+        }
     }
 
-    void CheckIfNeedToFlip()
+    public void ChangeChance(int alvo, bool positive) // Altera as chances de usar cada habilidade
+    {
+        for (int i = 0; i < chanceList.Length; i++) // Diminui as chances de todas as habilidades
+        {                                           //para aumentar apenas a chance de uma
+            if (positive)
+            {
+                chanceList[i] -= 0.2f;
+                if (i == alvo)
+                    chanceList[i] += 0.8f;
+            }
+            else
+            {
+                chanceList[i] += 0.2f;
+                if (i == alvo)
+                    chanceList[i] -= 0.8f;
+            }
+        }
+    }
+    void Dash()
+    {
+        if (isFacingLeft)
+        {
+            if (transform.position.x > dashPos.x)
+                bossRb.velocity = new Vector2(-transform.localScale.x * dashVelocity, 0f);
+            else if (transform.position.x <= dashPos.x && isFacingLeft)
+                StopDashing();
+        }
+        else
+        {
+            if (transform.position.x < initialPos.x)
+                bossRb.velocity = new Vector2(transform.localScale.x * dashVelocity, 0f);
+            else if(transform.position.x >= initialPos.x && !isFacingLeft)
+                StopDashing();
+        }
+    }
+
+    void CheckIfNeedToFlip() // Outdated
     {
         float playerDirection = player.transform.position.x - transform.position.x;
 
@@ -60,78 +128,99 @@ public class BossManager : MonoBehaviour
 
     public void TryNewAttack()
     {
-        int test = Random.Range(0, 3);
-        Debug.Log(test);
-        if (test != 0)
+        int test = Random.Range(0, 100);
+        if (test < chanceList[0] + 10)
             animator.SetBool("isAttacking", true);
 
     }
 
-    public void DashAttack()
+    public void DashAttack() // Faz o dash de um lado para o outro da tela
     {
-        if (transform.position == initialPos)
-            transform.position = DashPosition;
-        else
-            transform.position = initialPos;
-        // OU
         animator.SetBool("isDashing", true);
-        // Player Dash with animation that gets him to the other side
-        dashCollider.SetActive(true);    // Maybe(ProbYes) this can be activated with the animation also
-
-        Flip(); 
-	        // Do I have to FLip de animation for it to go to the other side? Or jsut by fliping the boss, the animation will
-        //turn with him?
-
     }
 
-    public void StopDashing()
+    public void StopDashing() // Faz a máquina de estados saber que o dash acabou
     {
         animator.SetBool("isDashing", false);
-        dashCollider.SetActive(false);
+        //dashCollider.SetActive(false);
+        bossRb.velocity = Vector2.zero;
+        Flip();
     }
 
-    public void LaserAttack()
+    public void StopImmune()
     {
-        animator.SetBool("isLasering", true); // Talvez possa ser trigger tb
+        animator.SetBool("isImmune", false);
     }
 
-    public void StopLaser()
+    public void StopLaser() // Faz a máquina de estados saber que o laser acabou
     {
         animator.SetBool("isLasering", false);
     }
 
-    private void Die()
+    private void Die()  // Boss morre, mostra tela de vitória
     {
         animator.SetBool("isDead", true);
         ShowWinningUI();
     }
 
-    public void DecideNextMove()
+    public void DecideNextMove()  // Decision "Tree"
     {
-        int rand = Random.Range(0, 3);
+        float rand = Random.Range(0, 100);
+        deltaLaser = chanceList[0] + chanceList[1];
+        deltaImmune = deltaLaser + chanceList[2];
+        deltaDash = deltaImmune + chanceList[3];
+
+        playerPos = Vector3.Distance(transform.position, player.transform.position);
+
         if (health == 0)
             Die();
-        else if (playerPos < 50) // <, não ==, pois tem q ser float
+        else if (playerPos < 2 && Random.Range(0, 100) <= meleeChance) //playerPos n esta implementado
         {
-            //MeleeAttack();
+            Debug.Log("Melee");
+            //animator.SetBool("isAttacking", true);
         }
-        else if (rand == 0)
+        else if (rand <= chanceList[0])
         {
+            Debug.Log("Ranged");
+            animator.SetBool("isAttacking", true);
             TryNewAttack();
         }
-        else if (rand == 1)
+        else if (rand > chanceList[0] && rand <= deltaLaser)
         {
-            LaserAttack();
+            Debug.Log("Laser");
+            animator.SetBool("isLasering", true);
         }
-        else
+        else if (rand > deltaLaser && rand <= deltaImmune)
         {
-            animator.SetTrigger("isImmune");
-            immune = true;
+            Debug.Log("Immune");
+            animator.SetBool("isImmune",true);
+        }
+        else if (rand > deltaImmune && rand <= deltaDash)
+        {
+            Debug.Log("Dash");
+            animator.SetBool("isDashing", true);
+            //DashAttack();
         }
 
     }
 
-    public void TakeDamage(int damage)
+    public void ThrowPlayer() // Caso o boss acerte o player, joga o player pra longe
+    {
+        Rigidbody playerRb = player.GetComponent<Rigidbody>();
+        if (isFacingLeft)
+        {
+            //throw player left
+            playerRb.AddForce(-player.transform.right * throwForce, ForceMode.Impulse);
+        }
+        else
+        {
+            //throw player right
+            playerRb.AddForce(player.transform.right * throwForce, ForceMode.Impulse);
+        }
+
+    }
+
+    public void TakeDamage(int damage) // Boss toma dano, caso não esteja imune
     {
         if (temVida && !immune)
             health -= damage; // take in consideration armor? On Rage could have more?
@@ -144,9 +233,14 @@ public class BossManager : MonoBehaviour
         }
 		    //Enter rage mode(); -> Just Make IdleState Different and Faster animations?
     }
+    public void CheckMeleeMiss() // Se o melee não acerte ninguém, diminui a chance de usar a skill
+    {
+        meleeChance--;
+    }
 
     public void ShowWinningUI()
     {
 
     }
+
 }
