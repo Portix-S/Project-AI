@@ -13,7 +13,8 @@ public class BossManager : MonoBehaviour
     [SerializeField] GameObject projectileSpawnPos;
     [SerializeField] GameObject player;
     [SerializeField] GameObject dashCollider;
-    
+
+    HealthBar bossHealthUI;
     Animator animator;
     bool temVida;
     public bool immune;
@@ -29,6 +30,7 @@ public class BossManager : MonoBehaviour
     Vector3 initialPos;
     Vector3 dashPos;
     float playerPos = 50;
+    float meleeDashDamage = 10f;
 
     float deltaDash;
     float deltaImmune;
@@ -46,6 +48,8 @@ public class BossManager : MonoBehaviour
         bossTransform = gameObject.GetComponent<Transform>();
         animator = GetComponent<Animator>();
         bossRb = GetComponent<Rigidbody2D>();
+        bossHealthUI = GetComponent<HealthBar>();
+        bossHealthUI.currentHealth = health;
 
         chanceList[0] = 40f; // Ranged Chance in %
         chanceList[1] = 20f; // Laser Chance 
@@ -227,6 +231,7 @@ public class BossManager : MonoBehaviour
 
     public void TakeDamage(float damage) // Boss toma dano, caso n�o esteja imune
     {
+        bossHealthUI.TakeDamage(damage);
         if (!immune && health > damage)
             health -= damage; // take in consideration armor? On Rage could have more?
         else if (!immune && health <= damage)
@@ -257,6 +262,7 @@ public class BossManager : MonoBehaviour
             if(animator.GetBool("isMeleeing") || animator.GetBool("isDashing"))
             {
                 ThrowPlayer();
+                player.GetComponent<CharacterController2D>().TakeDamage(meleeDashDamage);
             }
         }
     }

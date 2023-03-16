@@ -15,16 +15,16 @@ public class Bullet : MonoBehaviour
         playerMov = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerMovement>();
         bulletRb = GetComponent<Rigidbody2D>();
         //Maybe change to always go right? Check where to rotate object
-        //if(playerMov.isFacingUp)
+        if(playerMov.isFacingUp)
             bulletRb.velocity = new Vector2(0,1) * bulletSpeed;
-        /*
+        //*
         else if(playerMov.isFacingLeft)
         {
-            bulletRb.velocity = new Vector2(1,0) * bulletSpeed;
+            bulletRb.velocity = new Vector2(-1,0) * bulletSpeed;
             //arrumar rotação?
         }
         else if(!playerMov.isFacingLeft)
-            bulletRb.velocity = new Vector2(-1,0) * bulletSpeed;
+            bulletRb.velocity = new Vector2(1,0) * bulletSpeed;
         //*/
     }
     

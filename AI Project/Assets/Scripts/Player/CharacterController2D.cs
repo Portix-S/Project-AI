@@ -23,6 +23,7 @@ public class CharacterController2D : MonoBehaviour
 	[Header("Health")]
 	public float health = 100;
 	public bool onLaser;
+	HealthBar playerHealthUI;
 
 	[Header("Events")]
 	[Space]
@@ -38,6 +39,7 @@ public class CharacterController2D : MonoBehaviour
 	private void Awake()
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
+		playerHealthUI = GetComponent<HealthBar>();
 
 		if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
@@ -155,6 +157,7 @@ public class CharacterController2D : MonoBehaviour
 
 	public void TakeDamage(float damage) // Boss toma dano, caso n�o esteja imune
 	{
+		playerHealthUI.TakeDamage(damage);
 		Animator animator = GetComponentInChildren<Animator>();
 		animator.SetBool("isTakingDamage",true);
 		if (health > damage)

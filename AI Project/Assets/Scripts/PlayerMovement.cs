@@ -77,13 +77,18 @@ public class PlayerMovement : MonoBehaviour {
 
 			if (Input.GetKeyDown(KeyCode.P))
 			{
+				/*
 				if(isFacingUp)
 					Instantiate(bullet, bulletPosUp.transform.position, Quaternion.Euler(0,0,-90f));
 				else if(isFacingLeft)
-					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,-90f));
+					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,180,0));
 				else if(!isFacingLeft)
-					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,-90f));
-
+					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,0));
+				//*/
+				if(isFacingUp)
+					Instantiate(bullet, bulletPosUp.transform.position, Quaternion.Euler(0,0,0));
+				else
+					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,0));
 			}
 
 		}
