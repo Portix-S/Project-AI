@@ -6,11 +6,12 @@ public class Projectile : MonoBehaviour
 {
     [SerializeField] float projectileSpeed;
     [SerializeField] Rigidbody2D projectileRb;
-    [SerializeField] int projectileDamage;
+    [SerializeField] float projectileDamage;
     Vector3 distance;
     Vector3 playerPos;
     bool hitPlayer;
     BossManager bossScript;
+    
     // Start is called before the first frame update
     void Start()
     {

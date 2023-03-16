@@ -17,8 +17,8 @@ public class BossManager : MonoBehaviour
     Animator animator;
     bool temVida;
     public bool immune;
-    int health = 100;
-    int rageHealth;
+    float health = 100;
+    float rageHealth;
     Transform bossTransform;
     Rigidbody2D bossRb;
 
@@ -139,7 +139,7 @@ public class BossManager : MonoBehaviour
         animator.SetBool("isDashing", true);
     }
 
-    public void StopDashing() // Faz a máquina de estados saber que o dash acabou
+    public void StopDashing() // Faz a mï¿½quina de estados saber que o dash acabou
     {
         animator.SetBool("isDashing", false);
         //dashCollider.SetActive(false);
@@ -152,7 +152,7 @@ public class BossManager : MonoBehaviour
         animator.SetBool("isImmune", false);
     }
 
-    public void StopLaser() // Faz a máquina de estados saber que o laser acabou
+    public void StopLaser() // Faz a mï¿½quina de estados saber que o laser acabou
     {
         animator.SetBool("isLasering", false);
     }
@@ -162,7 +162,7 @@ public class BossManager : MonoBehaviour
         animator.SetBool("isMeleeing", false);
     }
 
-    private void Die()  // Boss morre, mostra tela de vitória
+    private void Die()  // Boss morre, mostra tela de vitï¿½ria
     {
         animator.SetBool("isDead", true);
         ShowWinningUI();
@@ -225,7 +225,7 @@ public class BossManager : MonoBehaviour
 
     }
 
-    public void TakeDamage(int damage) // Boss toma dano, caso não esteja imune
+    public void TakeDamage(float damage) // Boss toma dano, caso nï¿½o esteja imune
     {
         if (!immune && health > damage)
             health -= damage; // take in consideration armor? On Rage could have more?
@@ -240,7 +240,7 @@ public class BossManager : MonoBehaviour
         }
 		    
     }
-    public void CheckMeleeMiss() // Se o melee não acerte ninguém, diminui a chance de usar a skill
+    public void CheckMeleeMiss() // Se o melee nï¿½o acerte ninguï¿½m, diminui a chance de usar a skill
     {
         meleeChance--;
     }

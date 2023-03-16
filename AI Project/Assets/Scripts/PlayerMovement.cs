@@ -5,10 +5,15 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour {
 
 	public CharacterController2D controller;
+	[SerializeField] GameObject bullet;
+	[SerializeField] GameObject bulletPosHorizontal;
+	[SerializeField] GameObject bulletPosUp;
 
 	public float runSpeed = 40f;
 
 	float horizontalMove = 0f;
+	public bool isFacingLeft;
+	public bool isFacingUp;
 	bool jump = false;
 	bool crouch = false;
 	Vector2 limits;
@@ -33,9 +38,23 @@ public class PlayerMovement : MonoBehaviour {
     // Update is called once per frame
     void Update () 
 	{
+		if(Input.GetKeyDown(KeyCode.W))
+			isFacingUp = true;
+		else if(horizontalMove < 0)
+		{
+			isFacingLeft = true;
+			isFacingUp = false;
+		}
+		else if(horizontalMove > 0)
+		{
+			isFacingLeft = false;
+			isFacingUp = false;
+		}
+
+
 		if (controller.health > 0)
 		{
-			if (Input.GetButtonDown("Jump"))
+			if (Input.GetKeyDown(KeyCode.Space))
 			{
 				animator.SetBool("isGrounded", false);
 				jump = true;
@@ -58,8 +77,15 @@ public class PlayerMovement : MonoBehaviour {
 
 			if (Input.GetKeyDown(KeyCode.P))
 			{
-				bossScript.TakeDamage(10);
+				if(isFacingUp)
+					Instantiate(bullet, bulletPosUp.transform.position, Quaternion.Euler(0,0,-90f));
+				else if(isFacingLeft)
+					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,-90f));
+				else if(!isFacingLeft)
+					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,-90f));
+
 			}
+
 		}
 		else
 			horizontalMove = 0;
@@ -99,7 +125,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void LateUpdate()
 	{
-		// Mantém o personagem nos limites da telas 
+		// Mantï¿½m o personagem nos limites da telas 
 		Vector3 objPos = transform.position;
 		objPos.x = Mathf.Clamp(objPos.x, -limits.x + objectWidth, limits.x - objectWidth );
 		objPos.y = Mathf.Clamp(objPos.y, -limits.y + objectHeight , limits.y - objectHeight);

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using System.Collections;
 
 public class CharacterController2D : MonoBehaviour
 {
@@ -20,8 +21,8 @@ public class CharacterController2D : MonoBehaviour
 	private Vector3 m_Velocity = Vector3.zero;
 
 	[Header("Health")]
-	public int health = 100;
-
+	public float health = 100;
+	public bool onLaser;
 
 	[Header("Events")]
 	[Space]
@@ -152,8 +153,10 @@ public class CharacterController2D : MonoBehaviour
 	}
 
 
-	public void TakeDamage(int damage) // Boss toma dano, caso não esteja imune
+	public void TakeDamage(float damage) // Boss toma dano, caso nï¿½o esteja imune
 	{
+		Animator animator = GetComponentInChildren<Animator>();
+		animator.SetBool("isTakingDamage",true);
 		if (health > damage)
 			health -= damage; // take in consideration armor? On Rage could have more?
 		else if (health <= damage)
@@ -161,4 +164,14 @@ public class CharacterController2D : MonoBehaviour
 			health = 0;
 		}
 	}
+
+
+	public IEnumerator LaserDamage(float damage)
+	{
+		TakeDamage(damage);
+		yield return new WaitForSeconds(0.1f);
+		if(onLaser)
+			StartCoroutine(LaserDamage(damage));
+	}
+
 }
