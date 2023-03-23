@@ -33,7 +33,7 @@ public class Bullet : MonoBehaviour
         {
             BossManager bossScript = other.collider.GetComponent<BossManager>();
             bossScript.TakeDamage(bulletDamage);
-            Destroy(gameObject, 0.1f);
+            Destroy(gameObject, 0f);
         }
         else
         {

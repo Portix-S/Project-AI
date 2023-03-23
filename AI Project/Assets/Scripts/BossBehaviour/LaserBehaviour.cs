@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class LaserBehaviour : StateMachineBehaviour
 {
+    BossManager bossScript;
+    List<GameObject> laserList;
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        int numberOfLasers = Random.Range(0, 3);
-        BossManager bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
+        int numberOfLasers = Random.Range(1, 4);
+        bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
         List<int> randomList = new List<int>();
+        laserList = new List<GameObject>();
         if(bossScript.isFacingLeft)
-            Instantiate(bossScript.laser, bossScript.laserPos.transform.position, Quaternion.Euler(0,0,180));
+            laserList.Add(Instantiate(bossScript.laser, bossScript.laserPos.transform.position, Quaternion.Euler(0,0,180)));
         else
-            Instantiate(bossScript.laser, bossScript.laserPos.transform.position, Quaternion.Euler(0, 180, 180));
+            laserList.Add(Instantiate(bossScript.laser, bossScript.laserPos.transform.position, Quaternion.Euler(0, 180, 180)));
 
 
         for (int i = 0; i<numberOfLasers; i++)
@@ -27,17 +30,23 @@ public class LaserBehaviour : StateMachineBehaviour
             randomList.Add(randPos);
 
             //Instantiate in Random Position
-            Instantiate(bossScript.laser, bossScript.laserList[randPos].transform.position, Quaternion.Euler(0,0,180));
+            laserList.Add(Instantiate(bossScript.laser, bossScript.laserList[randPos].transform.position, Quaternion.Euler(0,0,180)));
 
-            //bossScript.laserList[randPos];   
         }
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
-    //override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
-    //{
-    //    
-    //}
+    override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
+    {
+        if (bossScript.GetCurrentHealth() == 0f)
+        {
+            foreach(GameObject obj in laserList)
+            {
+                Destroy(obj);
+            }
+        }
+
+    }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     //override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)

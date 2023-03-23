@@ -27,7 +27,7 @@ public class PlayerMovement : MonoBehaviour {
 
 	private void Start()
     {
-		 limits = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
+		limits = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
 		objectWidth = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.x / 2 - 0.55f;
 		objectHeight = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.y / 2 - 0.55f;
 		animator = GetComponentInChildren<Animator>();
@@ -52,7 +52,7 @@ public class PlayerMovement : MonoBehaviour {
 		}
 
 
-		if (controller.health > 0)
+		if (controller.playerHealthUI.currentHealth > 0)
 		{
 			if (Input.GetKeyDown(KeyCode.Space))
 			{
@@ -75,16 +75,8 @@ public class PlayerMovement : MonoBehaviour {
 				animator.SetBool("isCrouching", false);
 			}
 
-			if (Input.GetKeyDown(KeyCode.P))
+			if (Input.GetKeyDown(KeyCode.P) || Input.GetMouseButtonDown(0))
 			{
-				/*
-				if(isFacingUp)
-					Instantiate(bullet, bulletPosUp.transform.position, Quaternion.Euler(0,0,-90f));
-				else if(isFacingLeft)
-					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,180,0));
-				else if(!isFacingLeft)
-					Instantiate(bullet, bulletPosHorizontal.transform.position, Quaternion.Euler(0,0,0));
-				//*/
 				if(isFacingUp)
 					Instantiate(bullet, bulletPosUp.transform.position, Quaternion.Euler(0,0,0));
 				else
@@ -121,7 +113,7 @@ public class PlayerMovement : MonoBehaviour {
 	void FixedUpdate ()
 	{
 		// Move our character
-		if (controller.health > 0)
+		if (controller.playerHealthUI.currentHealth > 0)
 		{
 			controller.Move(horizontalMove * Time.fixedDeltaTime, crouch, jump);
 			jump = false;
@@ -132,6 +124,8 @@ public class PlayerMovement : MonoBehaviour {
 	{
 		// Mant�m o personagem nos limites da telas 
 		Vector3 objPos = transform.position;
+		objectWidth = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.x / 2 - 0.55f;
+		objectHeight = transform.GetComponentInChildren<SpriteRenderer>().bounds.size.y / 2 - 0.55f;
 		objPos.x = Mathf.Clamp(objPos.x, -limits.x + objectWidth, limits.x - objectWidth );
 		objPos.y = Mathf.Clamp(objPos.y, -limits.y + objectHeight , limits.y - objectHeight);
 		transform.position = objPos;

@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PatrolCollider
   - Boss
+  - Laser
   layers:
   - Default
   - TransparentFX

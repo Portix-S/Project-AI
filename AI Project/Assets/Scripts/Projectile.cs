@@ -7,6 +7,7 @@ public class Projectile : MonoBehaviour
     [SerializeField] float projectileSpeed;
     [SerializeField] Rigidbody2D projectileRb;
     [SerializeField] float projectileDamage;
+    [SerializeField] float timer;
     Vector3 distance;
     Vector3 playerPos;
     bool hitPlayer;
@@ -35,14 +36,14 @@ public class Projectile : MonoBehaviour
     {
         if (collision.tag == "Player" && collision.isTrigger)
         {
-            Destroy(gameObject, 0.1f);
+            Destroy(gameObject, timer);
             hitPlayer = true;
             CharacterController2D playerScript = collision.GetComponent<CharacterController2D>();
             playerScript.TakeDamage(projectileDamage);
         }
     }
 
-    private void OnDestroy()
+    private void OnDestroy() // Ranged 
     {
         if (!hitPlayer)
             bossScript.ChangeChance(0, false);

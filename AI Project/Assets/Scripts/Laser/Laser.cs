@@ -4,31 +4,35 @@ using UnityEngine;
 
 public class Laser : MonoBehaviour
 {
-    float laserDamage = 1f;
+    [SerializeField] float laserDamage = 1f;
     CharacterController2D playerScript;
 
     private void Awake() 
     {
+        playerScript = GameObject.FindGameObjectWithTag("Player").GetComponent<CharacterController2D>();
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
         if(other.tag == "Player")
         {
-            playerScript = other.GetComponent<CharacterController2D>();
-            BossManager bossScript = GetComponent<BossManager>();
-            bossScript.ChangeChance(1, true);
+            BossManager bossScript = GameObject.FindGameObjectWithTag("Boss").GetComponent<BossManager>();
+            bossScript.ChangeChance(1, true); // Recompensa para o Boss
             playerScript.onLaser = true;
-			StartCoroutine(playerScript.LaserDamage(laserDamage)); // Em teoria faz ele tomar dano a cada 0.1seg
+			StartCoroutine(playerScript.LaserDamage(laserDamage));
         }    
     }
 
     private void OnTriggerExit2D(Collider2D other) {
         if(other.tag == "Player")
         {
-            playerScript = other.GetComponent<CharacterController2D>();
             playerScript.onLaser = false;
         }
+    }
+
+    private void OnDestroy()
+    {
+        playerScript.onLaser = false;
     }
 
 }

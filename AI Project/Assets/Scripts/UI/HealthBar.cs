@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,37 +6,52 @@ using UnityEngine.UI;
 
 public class HealthBar : MonoBehaviour
 {
-    Image image;
+    [SerializeField] Image image;
     public float currentHealth;
-    float targetHealth;
+    public  float targetHealth;
+    [SerializeField] float maxHealth;
+    public event EventHandler OnHealthChanged;
 
     // Start is called before the first frame update
     void Start()
     {
-        image = GetComponent<Image>();
+        //image = GetComponent<Image>();
+        targetHealth = currentHealth;
+        maxHealth = currentHealth;
+    }
+
+    private void Update()
+    {
+        image.fillAmount = currentHealth / maxHealth;
+        UpdateHealth();
+
     }
 
     public void TakeDamage(float amount) //
     {
-        if(currentHealth - amount > 0)
+        if (currentHealth - amount > 0)
+        {
             targetHealth = currentHealth - amount;
+        }
         else
+        {
             targetHealth = 0f;
-        UpdateHealth();
+        }
     }
 
-    private void UpdateHealth()
+    public void UpdateHealth()
     {
-        if(currentHealth > targetHealth)
+
+        if (currentHealth > targetHealth)
         {
             currentHealth--;
-            Invoke("UpdateHealth",0.1f);
         }   
         else
         {
             currentHealth = targetHealth;
-            image.fillAmount = currentHealth;
-        }   
+            OnHealthChanged?.Invoke(this, EventArgs.Empty);
+
+        }
 
 
     }

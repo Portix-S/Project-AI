@@ -123,6 +123,7 @@ MonoBehaviour:
   projectileSpeed: 20
   projectileRb: {fileID: 0}
   projectileDamage: 10
+  timer: 0.1
 --- !u!61 &1731693523886918759
 BoxCollider2D:
   m_ObjectHideFlags: 0

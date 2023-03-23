@@ -21,9 +21,12 @@ public class CharacterController2D : MonoBehaviour
 	private Vector3 m_Velocity = Vector3.zero;
 
 	[Header("Health")]
-	public float health = 100;
+	public float health = 100f;
 	public bool onLaser;
-	HealthBar playerHealthUI;
+	public HealthBar playerHealthUI;
+
+	[Header("UI")]
+	[SerializeField] GameObject loseUI;
 
 	[Header("Events")]
 	[Space]
@@ -40,15 +43,27 @@ public class CharacterController2D : MonoBehaviour
 	{
 		m_Rigidbody2D = GetComponent<Rigidbody2D>();
 		playerHealthUI = GetComponent<HealthBar>();
+		playerHealthUI.currentHealth = health;
+		playerHealthUI.UpdateHealth();
 
 		if (OnLandEvent == null)
 			OnLandEvent = new UnityEvent();
 
 		if (OnCrouchEvent == null)
 			OnCrouchEvent = new BoolEvent();
+
+        playerHealthUI.OnHealthChanged += PlayerHealthUI_OnHealthChanged;
 	}
 
-	private void FixedUpdate()
+    private void PlayerHealthUI_OnHealthChanged(object sender, System.EventArgs e)
+    {
+		if (playerHealthUI.currentHealth == 0f)
+		{
+			Invoke("ShowDefeatUI", 0.5f);
+		}
+	}
+
+    private void FixedUpdate()
 	{
 		bool wasGrounded = m_Grounded;
 		m_Grounded = false;
@@ -65,7 +80,7 @@ public class CharacterController2D : MonoBehaviour
 					OnLandEvent.Invoke();
 			}
 		}
-		if(health == 0)
+		if(playerHealthUI.currentHealth == 0)
 			Move(0, false, false);
 
 	}
@@ -166,15 +181,21 @@ public class CharacterController2D : MonoBehaviour
 		{
 			health = 0;
 		}
+		
 	}
 
 
 	public IEnumerator LaserDamage(float damage)
 	{
 		TakeDamage(damage);
-		yield return new WaitForSeconds(0.1f);
+		yield return new WaitForSeconds(0.2f);
 		if(onLaser)
 			StartCoroutine(LaserDamage(damage));
 	}
+
+	public void ShowDefeatUI()
+    {
+		loseUI.SetActive(true);
+    }
 
 }
